@@ -2303,6 +2303,3 @@ admin course with initial username and password 'admin'.
 
 Have fun! :-)
 EOF
-
-write_launch_browser_script( $installer_dir,
-    'http://localhost' . $webwork_url );

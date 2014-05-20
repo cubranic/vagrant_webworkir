@@ -1659,46 +1659,46 @@ sub get_webwork {
     my ( $prefix, $apps, $wwadmin ) = @_;
     create_prefix_path($prefix);
     chdir $prefix or die "Can't chdir to $prefix";
-    # my $ww2_repo =
-    #  get_webwork2_repo(WEBWORK2_REPO);   #WEBWORK2_REPO constant defined at top
-    #my $ww2_cmd = $apps->{git} . " clone " . $ww2_repo;
+    my $ww2_repo =
+     get_webwork2_repo(WEBWORK2_REPO);   #WEBWORK2_REPO constant defined at top
+    my $ww2_cmd = $apps->{git} . " clone " . $ww2_repo;
 
-    # my $pg_repo = get_pg_repo(PG_REPO);    #PG_REPO constant defined at top
-    # my $pg_cmd = $apps->{git} . " clone " . $pg_repo;
+    my $pg_repo = get_pg_repo(PG_REPO);    #PG_REPO constant defined at top
+    my $pg_cmd = $apps->{git} . " clone " . $pg_repo;
 
     my $opl_repo = get_opl_repo(OPL_REPO);    #OPL_REPO constant defined at top
     my $opl_cmd = "rm -rf /opt/webwork/libraries/webwork-open-problem-library;" . $apps->{git} . " clone " . $opl_repo;
 
     my $buffer;
-    # my (
-    #     $ww2_success,    $ww2_error_message, $ww2_full_buf,
-    #     $ww2_stdout_buf, $ww2_stderr_buf
-    #   )
-    #   = run(
-    #     command => $ww2_cmd,
-    #     verbose => IPC_CMD_VERBOSE,
-    #     timeout => IPC_CMD_TIMEOUT
-    #   );
+    my (
+        $ww2_success,    $ww2_error_message, $ww2_full_buf,
+        $ww2_stdout_buf, $ww2_stderr_buf
+      )
+      = run(
+        command => $ww2_cmd,
+        verbose => IPC_CMD_VERBOSE,
+        timeout => IPC_CMD_TIMEOUT
+      );
 
-    # if ($ww2_success) {
-    #     print "fetched webwork2 successfully.\n";
-    # } else {
-    #     die "Couldn't get webwork2: $ww2_error_message\n";
-    # }
-    # my (
-    #     $pg_success,    $pg_error_message, $pg_full_buf,
-    #     $pg_stdout_buf, $pg_stderr_buf
-    #   )
-    #   = run(
-    #     command => $pg_cmd,
-    #     verbose => IPC_CMD_VERBOSE,
-    #     timeout => IPC_CMD_TIMEOUT
-    #   );
-    # if ($pg_success) {
-    #     print "fetched pg successfully.\n";
-    # } else {
-    #     die "Couldn't get pg: $pg_error_message\n";
-    # }
+    if ($ww2_success) {
+        print "fetched webwork2 successfully.\n";
+    } else {
+        die "Couldn't get webwork2: $ww2_error_message\n";
+    }
+    my (
+        $pg_success,    $pg_error_message, $pg_full_buf,
+        $pg_stdout_buf, $pg_stderr_buf
+      )
+      = run(
+        command => $pg_cmd,
+        verbose => IPC_CMD_VERBOSE,
+        timeout => IPC_CMD_TIMEOUT
+      );
+    if ($pg_success) {
+        print "fetched pg successfully.\n";
+    } else {
+        die "Couldn't get pg: $pg_error_message\n";
+    }
 
     make_path( 'libraries', { owner => $wwadmin, group => $wwadmin } );
     make_path( 'courses',   { owner => $wwadmin, group => $wwadmin } );

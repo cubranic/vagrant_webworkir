@@ -86,6 +86,7 @@ use constant WEBWORK2_REPO => 'https://github.com/openwebwork/webwork2.git';
 use constant PG_REPO       => 'https://github.com/openwebwork/pg.git';
 use constant OPL_REPO =>
   'https://github.com/openwebwork/webwork-open-problem-library.git';
+use constant MATHJAX_REPO => 'https://github.com/mathjax/MathJax.git';
 
 use constant WW_PREFIX => '/opt/webwork/';
 use constant ROOT_URL  => 'http://localhost';
@@ -176,6 +177,7 @@ my @modulesList = qw(
   Exception::Class
   File::Copy
   File::Find
+  File::Find::Rule
   File::Path
   File::Spec
   File::stat
@@ -1735,22 +1737,27 @@ sub unpack_jsMath_fonts {
 }
 
 sub get_MathJax {
-    my $webwork_dir = shift;
-    chdir("$webwork_dir");
+    my ( $prefix, $apps ) = @_;
+    create_prefix_path($prefix);
+    chdir $prefix or die "Can't chdir to $prefix";
 
-    #system("git submodule update --init");
-    my $full_path = can_run('git');
-    my $cmd = [ $full_path, 'submodule', "update", "--init" ];
-    my ( $success, $error_message, $full_buf, $stdout_buf, $stderr_buf ) = run(
-        command => $cmd,
+    my $mathjax_repo = MATHJAX_REPO;    #MATHJAX_REPO constant defined at top
+    my $mathjax_cmd = $apps->{git} . " clone " . $mathjax_repo;
+
+    my (
+        $mathjax_success,    $mathjax_error_message, $mathjax_full_buf,
+        $mathjax_stdout_buf, $mathjax_stderr_buf
+      )
+      = run(
+        command => $mathjax_cmd,
         verbose => IPC_CMD_VERBOSE,
         timeout => IPC_CMD_TIMEOUT
-    );
-    if ($success) {
-        print "Downloaded MathJax to $webwork_dir/htdocs/mathjax\n";
+      );
+
+    if ($mathjax_success) {
+        print "fetched mathjax successfully.\n";
     } else {
-        warn
-"Could not download MathJax. You'll have to do this manually: $error_message\n";
+        die "Couldn't get mathjax: $mathjax_error_message\n";
     }
 }
 
@@ -2145,7 +2152,7 @@ print <<EOF;
 # 
 ######################################################################
 EOF
-get_MathJax($webwork_dir);
+get_MathJax( $WW_PREFIX, $apps );
 
 print <<EOF;
 #######################################################################
@@ -2277,13 +2284,16 @@ EOF
 change_owner(
     "$wwadmin:$wwdata",  $webwork_courses_dir,
     "$webwork_dir/DATA", "$webwork_dir/htdocs/tmp",
-    "$webwork_dir/logs", "$webwork_dir/tmp"
+    "$webwork_dir/logs", "$webwork_dir/tmp",
+    "$pg_dir/lib/chromatic",
 );
 change_data_dir_permissions(
     $wwdata,             "$webwork_courses_dir",
     "$webwork_dir/DATA", "$webwork_dir/htdocs/tmp",
-    "$webwork_dir/logs", "$webwork_dir/tmp"
-);
+    "$webwork_dir/htdocs/DATA", "$webwork_dir/htdocs/applets",
+    "$webwork_dir/logs", "$webwork_dir/tmp",
+    "$pg_dir/lib/chromatic",
+    );
 
 print <<EOF;
 #######################################################################

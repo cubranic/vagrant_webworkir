@@ -940,10 +940,12 @@ sub change_owner {
 # chmod -R g+w DATA ../courses htdocs/tmp logs tmp
 # find DATA/ ../courses/ htdocs/tmp logs/ tmp/ -type d -a ! -name CVS -exec chmod g+s {}
 sub change_data_dir_permissions {
-    my ( $gid, $courses, $data, $htdocs_tmp, $logs, $tmp ) = @_;
+    my $gid = shift;
+    my @dirs = @_;
+    # my ( $gid, $courses, $data, $htdocs_tmp, $logs, $tmp ) = @_;
     my $chmod = can_run('chmod');
     my $cmd =
-      [ $chmod, '-R', 'g+w', $courses, $data, $htdocs_tmp, $logs, $tmp ];
+      [ $chmod, '-R', 'g+w', @dirs ];
     my (
         $chmod_success,    $chmod_error_message, $chmod_full_buf,
         $chmod_stdout_buf, $chmod_stderr_buf
@@ -955,14 +957,14 @@ sub change_data_dir_permissions {
       );
     if ($chmod_success) {
         print
-"Made the directories \n $courses,\n $data,\n $htdocs_tmp,\n $logs,\n $tmp\n group writable.\n";
+"Made the directories \n ". join("\n ", @dirs) . "\n group writable.\n";
     } else {
         warn
 "Could not make the directories group writable: $chmod_error_message\n";
     }
     my $find = can_run('find');
     $cmd = [
-        $find,    $courses, $data,  $htdocs_tmp, $logs,  $tmp,
+        $find,    @dirs,
         '-type',  'd',      '-and', '!',         '(',    '-name',
         '".git"', '-prune', ')',    '-exec',     $chmod, 'g+s',
         '{}',     ';'
@@ -978,7 +980,7 @@ sub change_data_dir_permissions {
       );
     if ($find_success) {
         print
-"Added group sticky bit to \n $courses,\n $data,\n $htdocs_tmp,\n $logs,\n $tmp\n and subdirectories (except .git's).\n";
+"Added group sticky bit to \n ". join("\n ", @dirs) . "\n and subdirectories (except .git's).\n";
     } else {
         warn "Error. Could not add sticky bit: $find_error_message\n";
     }

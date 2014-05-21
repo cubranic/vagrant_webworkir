@@ -72,8 +72,8 @@ cpanm Statistics::RserveClient
 wget -q -O /opt/webwork/pg/macros/RserveClient.pl https://gist.githubusercontent.com/djun-kim/5130048/raw/a2f11154d43ec3f92d06e4828fee46ca445504a0/gistfile1.pl
 
 ## Add RserveClient modules to the default config
-perl -p0 -i - /opt/webwork/webwork2/conf/defaults.config <<'EOF'
-s/(\${pg}{modules} = \[\n(^[^;]*$)*\n)];/\1    [qw(Data::Dumper)],
+cat >> /opt/webwork/webwork2/conf/localOverrides.conf <<'EOF'
+push @{$pg{modules}}, [qw(Data::Dumper)],
     [qw(Statistics::RserveClient)],
     [qw(Statistics::RserveClient::Connection)],
     [qw(Statistics::RserveClient::Funclib)],
@@ -93,8 +93,8 @@ s/(\${pg}{modules} = \[\n(^[^;]*$)*\n)];/\1    [qw(Data::Dumper)],
     [qw(Statistics::RserveClient::REXP::String)],
     [qw(Statistics::RserveClient::REXP::Symbol)],
     [qw(Statistics::RserveClient::REXP::Unknown)],
-    [qw(Statistics::RserveClient::REXP::Vector)],
-];/ms
+    [qw(Statistics::RserveClient::REXP::Vector)];
+1;
 EOF
 
 ## RserveClient always opens the debug log file for writing, and for

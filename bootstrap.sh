@@ -65,3 +65,51 @@ debconf-set-selections <<< 'mysql-server-<version> mysql-server/root_password_ag
 apt-get -y install mysql-server
 
 perl /vagrant/ww_install.pl
+
+## Rserve Perl connector
+cpanm Statistics::RserveClient
+# RserveClient.pl is saved in https://gist.github.com/djun-kim/5130048
+wget -q -O /opt/webwork/pg/macros/RserveClient.pl https://gist.githubusercontent.com/djun-kim/5130048/raw/a2f11154d43ec3f92d06e4828fee46ca445504a0/gistfile1.pl
+
+## Add RserveClient modules to the default config
+perl -p0 -i - /opt/webwork/webwork2/conf/defaults.config <<'EOF'
+s/(\${pg}{modules} = \[\n(^[^;]*$)*\n)];/\1    [qw(Data::Dumper)],
+    [qw(Statistics::RserveClient)],
+    [qw(Statistics::RserveClient::Connection)],
+    [qw(Statistics::RserveClient::Funclib)],
+    [qw(Statistics::RserveClient::Parser)],
+    [qw(Statistics::RserveClient::ParserException)],
+    [qw(Statistics::RserveClient::REXP)],
+    [qw(Statistics::RserveClient::REXP::Double)],
+    [qw(Statistics::RserveClient::REXP::Expression)],
+    [qw(Statistics::RserveClient::REXP::Factor)],
+    [qw(Statistics::RserveClient::REXP::GenericVector)],
+    [qw(Statistics::RserveClient::REXP::Integer)],
+    [qw(Statistics::RserveClient::REXP::Language)],
+    [qw(Statistics::RserveClient::REXP::List)],
+    [qw(Statistics::RserveClient::REXP::Logical)],
+    [qw(Statistics::RserveClient::REXP::Null)],
+    [qw(Statistics::RserveClient::REXP::Raw)],
+    [qw(Statistics::RserveClient::REXP::String)],
+    [qw(Statistics::RserveClient::REXP::Symbol)],
+    [qw(Statistics::RserveClient::REXP::Unknown)],
+    [qw(Statistics::RserveClient::REXP::Vector)],
+];/ms
+EOF
+
+## RserveClient always opens the debug log file for writing, and for
+## some reason this is owned by root and not writeable by the www-data
+## user to whom the WWk process belongs
+touch /tmp/rserve-debug.log
+chgrp www-data /tmp/rserve-debug.log
+chmod 664 /tmp/rserve-debug.log
+
+## Rserve server
+echo "deb http://cran.stat.sfu.ca/bin/linux/ubuntu precise/" > /etc/apt/sources.list.d/r.list
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+apt-get update
+apt-get -qq install r-base-dev
+
+Rscript -e 'install.packages(c("Rserve", "RSclient"), repo="http://cran.stat.sfu.ca")'
+
+R CMD Rserve --quiet --no-save

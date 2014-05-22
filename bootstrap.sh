@@ -73,7 +73,9 @@ wget -q -O /opt/webwork/pg/macros/RserveClient.pl https://gist.githubusercontent
 
 ## Add RserveClient modules to the default config
 cat >> /opt/webwork/webwork2/conf/localOverrides.conf <<'EOF'
-push @{$pg{modules}}, [qw(Statistics::RserveClient::Connection)];
+push @{$pg{modules}},
+    [qw(Data::Dumper)],
+    [qw(Statistics::RserveClient::Connection)];
 1;
 EOF
 

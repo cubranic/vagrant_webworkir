@@ -73,27 +73,7 @@ wget -q -O /opt/webwork/pg/macros/RserveClient.pl https://gist.githubusercontent
 
 ## Add RserveClient modules to the default config
 cat >> /opt/webwork/webwork2/conf/localOverrides.conf <<'EOF'
-push @{$pg{modules}}, [qw(Data::Dumper)],
-    [qw(Statistics::RserveClient)],
-    [qw(Statistics::RserveClient::Connection)],
-    [qw(Statistics::RserveClient::Funclib)],
-    [qw(Statistics::RserveClient::Parser)],
-    [qw(Statistics::RserveClient::ParserException)],
-    [qw(Statistics::RserveClient::REXP)],
-    [qw(Statistics::RserveClient::REXP::Double)],
-    [qw(Statistics::RserveClient::REXP::Expression)],
-    [qw(Statistics::RserveClient::REXP::Factor)],
-    [qw(Statistics::RserveClient::REXP::GenericVector)],
-    [qw(Statistics::RserveClient::REXP::Integer)],
-    [qw(Statistics::RserveClient::REXP::Language)],
-    [qw(Statistics::RserveClient::REXP::List)],
-    [qw(Statistics::RserveClient::REXP::Logical)],
-    [qw(Statistics::RserveClient::REXP::Null)],
-    [qw(Statistics::RserveClient::REXP::Raw)],
-    [qw(Statistics::RserveClient::REXP::String)],
-    [qw(Statistics::RserveClient::REXP::Symbol)],
-    [qw(Statistics::RserveClient::REXP::Unknown)],
-    [qw(Statistics::RserveClient::REXP::Vector)];
+push @{$pg{modules}}, [qw(Statistics::RserveClient::Connection)];
 1;
 EOF
 
